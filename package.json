@@ -101,7 +101,7 @@
     "bootstrap": "3.3.7",
     "localforage": "^1.7.2",
     "prop-types": "^15.6.2",
-    "react": "^16.4.1",
+    "react": "^16.8.4",
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
