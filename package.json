@@ -98,6 +98,7 @@
     "webpack-md5-hash": "^0.0.6"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bootstrap": "3.3.7",
     "localforage": "^1.7.2",
     "prop-types": "^15.6.2",
