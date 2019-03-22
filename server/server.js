@@ -34,7 +34,7 @@ app.use((req, res, next) => {
   resRef.handle = (err, data) => {
     if (err) {
       process.stdout.write(`Response Error: 😕
-${err}
+${JSON.stringify(err)}
 `);
     } else {
       process.stdout.write(`Response Data: 😎

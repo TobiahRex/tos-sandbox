@@ -1,11 +1,11 @@
 import express from 'express';
 import things from './things';
-import thinkOrSwim from './thinkOrSwim';
+import TosAccounts from './accounts';
 
 const router = new express.Router();
 
 router.use('/things', things);
 
-router.use('/tos', thinkOrSwim);
+router.use('/tos/accounts', TosAccounts);
 
 export default router;
