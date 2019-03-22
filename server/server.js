@@ -19,7 +19,7 @@ mongoose.Promise = Promise;
 dotenv.config({ silent: true });
 const PORT = process.env.PORT || 3000;
 const MONGO =
-  process.env.MONGODB_URI || 'mongodb://localhost/react16-boilerplate';
+  process.env.MONGODB_URI || 'mongodb://localhost/tos-sandbox';
 const BUILD = process.env.NODE_ENV || 'development';
 const app = express();
 const server = new http.Server(app);
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
   resRef.handle = (err, data) => {
     if (err) {
       process.stdout.write(`Response Error: 😕
-${err}
+${JSON.stringify(err)}
 `);
     } else {
       process.stdout.write(`Response Data: 😎

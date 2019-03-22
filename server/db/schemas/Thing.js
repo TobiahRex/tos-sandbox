@@ -4,7 +4,7 @@ const thingSchema = new mongoose.Schema({
   name: String,
 });
 
-const Thing = mongoose.model('Thing', thingSchema);
+const Things = mongoose.model('Things', thingSchema);
 
 // -----------------------------------------------------------------------------
-export default Thing;
+export default Things;

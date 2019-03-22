@@ -1,20 +1,20 @@
 import express from 'express';
 import { Types } from 'mongoose';
-import Thing from '../db/Thing';
+import Things from '../db/models/Things';
 
 const router = new express.Router();
 
 // -----------------------------------------------------------------------------
 router.get('/:thingId', (req, res) =>
-  Thing.findById(req.params.thingId, res.handle)
+  Things.findById(req.params.thingId, res.handle)
 );
 
 // -----------------------------------------------------------------------------
 router
   .route('/:thingId')
-  .get((req, res) => Thing.findById(req.params.thingId, res.handle))
+  .get((req, res) => Things.findById(req.params.thingId, res.handle))
   .put((req, res) =>
-    Thing.findByIdAndUpdate(
+    Things.findByIdAndUpdate(
       Types.ObjectId(req.params.thingId),
       req.body,
       { new: true },
@@ -22,14 +22,14 @@ router
     )
   )
   .delete((req, res) =>
-    Thing.findByIdAndRemove(req.params.thingId, res.handle)
+    Things.findByIdAndRemove(req.params.thingId, res.handle)
   );
 
 // -----------------------------------------------------------------------------
 router
   .route('/')
-  .get((req, res) => Thing.find({}, res.handle))
-  .post((req, res) => Thing.create(req.body, res.handle));
+  .get((req, res) => Things.find({}, res.handle))
+  .post((req, res) => Things.create(req.body, res.handle));
 
 // -----------------------------------------------------------------------------
 export default router;
