@@ -4,7 +4,10 @@ This is a README to help document lessons learned while interacting with TOS's A
 ### Step 1.
 Get A "code"
 
-- The `code` is used to initialize permissions from your actual trading account that you can use via TOS dashboard, to your developer account.  They are considered 2 different users.  Therefore, you must first __register__ your application on the developer dashboard.
+- The `code` is used to initialize permissions from your actual trading account
+  that you can use via TOS dashboard, to your developer account.
+  They are considered 2 different users.
+  Therefore, you must first __register__ your application on the developer dashboard.
 - To register follow [THESE instructions](https://developer.tdameritrade.com/content/getting-started).
 - The hardest part here is to remember to encode the callback url endpoint.
 ```

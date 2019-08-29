@@ -7,28 +7,28 @@ input medium = 21;
 input slow = 55;
 input slowest = 89;
 
-def EMA_fast = ExpAverage(close, fast);
-def EMA_slow = ExpAverage(close, medium);
-def SMA_fast = SimpleMovingAvg(close, slow);
-def SMA_slow = SimpleMovingAVg(close, slowest);
+def emaFast = ExpAverage(close, fast);
+def emaSlow = ExpAverage(close, medium);
+def smaFast = SimpleMovingAvg(close, slow);
+def smaSlow = SimpleMovingAVg(close, slowest);
 
-def buyAvgs = EMA_fast > SMA_fast;
-def sellAvgs = EMA_fast < SMA_fast;
+def buyAvgs = emaFast > smaFast;
+def sellAvgs = emaFast < smaFast;
 
 #==================================================================
 #==========================A0 Direction===========================
 #==================================================================
-input TimeFrame = 10;
+input timeFrame = 10;
 
-def TF_med_length = TimeFrame * 14;
-def TF_med = (close[1] + close[TimeFrame]) / 2;
-def Med_TF_NetChangeAvg = MovingAverage(AverageType.Exponential, TF_med - TF_med[1], TF_med_length);
-def Med_TF_TotChangeAvg = MovingAverage(AverageType.Exponential, AbsValue(TF_med - TF_med[1]), TF_med_length);
-def Med_TF_ChgRatio = if Med_TF_TotChangeAvg != 0 then (Med_TF_NetChangeAvg / Med_TF_TotChangeAvg) else 0;
+def tfLength = timeFrame * 14;
+def tfLengthAvg = (close[1] + close[timeFrame]) / 2;
+def d_NetChangeAvg = MovingAverage(AverageType.Exponential, tfLengthAvg - tfLengthAvg[1], tfLength);
+def d_TotChangeAvg = MovingAverage(AverageType.Exponential, AbsValue(tfLengthAvg - tfLengthAvg[1]), tfLength);
+def d_ChgRatio = if d_TotChangeAvg != 0 then (d_NetChangeAvg / d_TotChangeAvg) else 0;
 
-def RSI = 50 * (1 + Med_TF_ChgRatio) - 50;
-def RSIrawEMA = ExpAverage(RSI(), TimeFrame * 8) - 50;
-def RSIfastEMA = ExpAverage(RSI, TimeFrame * 5);
+def d_RSI = 50 * (1 + d_ChgRatio) - 50;
+def d_rsiGreen = ExpAverage(RSI(), timeFrame * 8) - 50;
+def d_rsiRed = ExpAverage(d_RSI, timeFrame * 5);
 
 #==================================================================
 #==========================A0 Triggers 2===========================
@@ -39,36 +39,20 @@ def RSIfastEMA = ExpAverage(RSI, TimeFrame * 5);
 #------------RSI Math------------
 #--------------------------------
 
-def NetChgAvg = MovingAverage(AverageType.EXPONENTIAL, close - close[1], 14);
-def TotChgAvg = MovingAverage(AverageType.EXPONENTIAL, AbsValue(close - close[1]), 14);
-def ChgRatio =
-    if (TotChgAvg != 0) then NetChgAvg / TotChgAvg
+def trig_NetChgAvg = MovingAverage(AverageType.EXPONENTIAL, close - close[1], 14);
+def trig_TotChgAvg = MovingAverage(AverageType.EXPONENTIAL, AbsValue(close - close[1]), 14);
+def trig_ChgRatio =
+    if (trig_TotChgAvg != 0) then trig_NetChgAvg / trig_TotChgAvg
     else 0;
-def _RSI = 50 * (ChgRatio + 1) ;
-
-#--------------------------------
-#------------RSI EMAs------------
-#--------------------------------
-def rsiFastExp = ExpAverage(_RSI, 8);
-def rsiSlowExp = ExpAverage(_RSI, 34);
-def RSIDiffAvg = (
-  ExpAverage(
-    (rsiFastExp  - rsiSlowExp),
-    13
-  ) * 1.5
-) * .8;
-def RSIValue = (
-  ExpAverage(_RSI, 8) - ExpAverage(RSI(), 34)
-) ;
+def trigRSI = 50 * (trig_ChgRatio + 1) ;
 
 #---------------------------------------------------------------
 #----- rsiValueDiff: The change in RSI Value relative to its last value
-#----- Speed: The average of Diff2 over 13 periods.
+#----- trig_Speed: The average of Diff2 over 13 periods.
 #---------------------------------------------------------------
-def rsiValueDiff = (RSIValue - RSIValue[1]);
-def Speed = ExpAverage(rsiValueDiff, 13) * 10;
-def RSIema55 = (SimpleMovingAvg(_RSI, 55) - 50) * 1.5;
-
+def trig_rsiSma55 = (SimpleMovingAvg(trigRSI, 55) - 50) * 1.5;
+def trig_rsiDiffExp = (ExpAverage(trigRSI, 8) - ExpAverage(RSI(), 34));
+def trig_Speed = ExpAverage((trig_rsiDiffExp - trig_rsiDiffExp[1]), 13) * 10;
 
 #------------------------
 #--- dydx: The difference of 2 EXP Averages over a short distance (A)
@@ -77,75 +61,94 @@ def RSIema55 = (SimpleMovingAvg(_RSI, 55) - 50) * 1.5;
 #--- WHY ---:  Its meant to emulate how derivatives are calculated to provide instantaneous,
 #--- change over time...ideally more responsive than "average".
 #------------------------
-def _RSIValueFaster = ((ExpAverage(_RSI, 8) * 1.7 - ExpAverage(RSI(), 13) * 1.7));
-def _RSIValueSlower = ((ExpAverage(_RSI, 8) * 1.7 - ExpAverage(RSI(), 34) * 1.7));
-def dydxRSI = ((_RSIValueSlower - _RSIValueFaster) / 21) * 50;
-
+def trig_rsiSmallDiff = ((ExpAverage(trigRSI, 8) * 1.7 - ExpAverage(RSI(), 13) * 1.7));
+def trig_rsiLargeDiff = ((ExpAverage(trigRSI, 8) * 1.7 - ExpAverage(RSI(), 34) * 1.7));
+def trig_dydxRSI = ((trig_rsiLargeDiff - trig_rsiSmallDiff) / 21) * 50;
 
 
 #==================================================================
-#====================== Cycle Detection ===========================
+#====================== Buy & Sell Detection ======================
 #==================================================================
-input triggerSell = 9;
-def tooFastSell = triggerSell;
+input trig_SellLine = 9;
+def trig_OverBought = trig_SellLine;
 
-input triggerBuy = -9;
-def tooFastBuy = triggerBuy;
+input trig_BuyLine = -9;
+def trig_OverSold = trig_BuyLine;
 
-def currentDiff = RSIrawEMA - RSIfastEMA;
+def d_rsiDiff = d_rsiGreen - d_rsiRed;
 def length = 100;
 def zero = 0;
-def diff = RSIrawEMA - RSIfastEMA;
+def diff = d_rsiGreen - d_rsiRed;
 def SellDiff = (
-    diff[0] < diff[1]
-    && diff[1] < diff[2]
-    #&& diff[2] < diff[3]
+    diff < 0
 );
 def BuyDiff = (
-    diff[0] > diff[1]
-    && diff[1] > diff[2]
-    #&& diff[2] > diff[3]
+    diff > 0
 );
-def sellBasket = fold i = 0 to length with currentSell = Double.NEGATIVE_INFINITY while currentDiff[i] < 0 do Max(currentSell, currentDiff[i]);
-def buyBasket = fold j = 0 to length with currentBuy = Double.POSITIVE_INFINITY while currentDiff[j] > 0 do Min(currentBuy, currentDiff[j]);
+def sellBasket = fold i = 0 to length with currentSell = Double.NEGATIVE_INFINITY while d_rsiDiff[i] < 0 do Max(currentSell, d_rsiDiff[i]);
+def buyBasket = fold j = 0 to length with currentBuy = Double.POSITIVE_INFINITY while d_rsiDiff[j] > 0 do Min(currentBuy, d_rsiDiff[j]);
 
 def BuyZone = (
  buyBasket != Double.POSITIVE_INFINITY
   && buyAvgs
-  && (BuyDiff or (RSIrawEMA >= 0))
-  #&& RSIfastEMA > 0
+  #&& d_rsiGreen >= 0
+  && BuyDiff
+  #&& (BuyDiff or (d_rsiGreen >= 0))
+  #&& d_rsiRed > 0
 );
 def BuyTrigger = (
-    Speed <= tooFastBuy
+    trig_Speed <= trig_OverSold
     && (
-      Speed < Speed[1]
-      #&& (Speed[4] > 0 or Speed[3] > 0 or Speed[2] > 0)
+      trig_Speed < trig_Speed[1]
+      #&& (trig_Speed[4] > 0 or trig_Speed[3] > 0 or trig_Speed[2] > 0)
     )
 );
 def SellZone = (
  sellBasket != Double.NEGATIVE_INFINITY
   && sellAvgs
-  && (SellDiff or (RSIrawEMA <= 0))
-  #&& RSIfastEMA < 0
+  #&& d_rsiGreen <= 0
+  && SellDiff
+  #&& (SellDiff or (d_rsiGreen <= 0))
+  #&& d_rsiRed < 0
 );
 
 def SellTrigger = (
-    Speed >= tooFastSell
+    trig_Speed >= trig_OverBought
     && (
-      Speed > Speed[1]
-      #&& (Speed[4] < 0 or Speed[3] < 0 or Speed[2] < 0)
+      trig_Speed > trig_Speed[1]
+      #&& (trig_Speed[4] < 0 or trig_Speed[3] < 0 or trig_Speed[2] < 0)
     )
 );
 
+#---------------------------------------------------------------
+#----- Candle Conditions: Candle closes across multiple EMAs
+#---------------------------------------------------------------
+plot c_sell = (
+    emaFast > emaSlow
+    && open > emaFast
+    && close < emaSlow
+);
+c_sell.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_DOWN);
+c_sell.SetLineWeight(3);
+c_sell.SetDefaultColor(Color.Orange);
+
+plot c_buy = (
+    emaFast < emaSlow
+    && open < emaFast
+    && close > emaSlowt
+);
+c_buy.SetPaintingStrategy(PaintingStrategy.BOOLEAN_ARROW_UP);
+c_buy.SetLineWeight(3);
+c_buy.SetDefaultColor(Color.Yellow);
 
 
-#--------------------
-#----Colors
-#--------------------
-input RSIOB = 8;
-input RSIOS = -8;
-plot Overbought = RSI > RSIOB;
-plot Oversold = RSI < RSIOS;
+#==================================================================
+#========================== Colors ================================
+#==================================================================
+input d_rsiOB = 8;
+input d_rsiOS = -8;
+plot Overbought = d_RSI > d_rsiOB;
+plot Oversold = d_RSI < d_rsiOS;
 
 Overbought.SetPaintingStrategy(PaintingStrategy.BOOLEAN_POINTS);
 Oversold.SetPaintingStrategy(PaintingStrategy.BOOLEAN_POINTS);
@@ -172,10 +175,11 @@ Exit.SetLineWeight(5);
 
 
 AssignPriceColor(
-  if StrongBUY then Color.Cyan
-  else if StrongSELL then Color.Magenta
-  else if BuyZone then Color.green
-  else if SellZone then Color.red
-  else if Exit then Color.Yellow
-  else Color.Gray
-);
+    if c_buy then Color.Yellow
+    else if c_sell then Color.Orange
+    else if StrongBUY then Color.green
+    else if StrongSELL then Color.red
+    else if BuyZone then Color.green
+    else if SellZone then Color.red
+    else Color.Gray
+  );

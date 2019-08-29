@@ -1,4 +1,4 @@
-declare lower;
+
 #==================================================================
 #==========================Moving Averages=========================
 #==================================================================
@@ -66,7 +66,7 @@ def RSIValue = (
 #----- Speed: The average of Diff2 over 13 periods.
 #---------------------------------------------------------------
 def rsiValueDiff = (RSIValue - RSIValue[1]);
-plot Speed = ExpAverage(rsiValueDiff, 13) * 10;
+def Speed = ExpAverage(rsiValueDiff, 13) * 10;
 def RSIema55 = (SimpleMovingAvg(_RSI, 55) - 50) * 1.5;
 
 
@@ -87,10 +87,10 @@ def dydxRSI = ((_RSIValueSlower - _RSIValueFaster) / 21) * 50;
 #====================== Cycle Detection ===========================
 #==================================================================
 input triggerSell = 9;
-plot tooFastSell = triggerSell;
+def tooFastSell = triggerSell;
 
 input triggerBuy = -9;
-plot tooFastBuy = triggerBuy;
+def tooFastBuy = triggerBuy;
 
 def currentDiff = RSIrawEMA - RSIfastEMA;
 def length = 100;
@@ -99,39 +99,51 @@ def diff = RSIrawEMA - RSIfastEMA;
 def SellDiff = (
     diff[0] < diff[1]
     && diff[1] < diff[2]
+    #&& diff[2] < diff[3]
 );
 def BuyDiff = (
     diff[0] > diff[1]
     && diff[1] > diff[2]
+    #&& diff[2] > diff[3]
 );
 def sellBasket = fold i = 0 to length with currentSell = Double.NEGATIVE_INFINITY while currentDiff[i] < 0 do Max(currentSell, currentDiff[i]);
 def buyBasket = fold j = 0 to length with currentBuy = Double.POSITIVE_INFINITY while currentDiff[j] > 0 do Min(currentBuy, currentDiff[j]);
 
-plot BuyZone = (
+def BuyZone = (
  buyBasket != Double.POSITIVE_INFINITY
   && buyAvgs
   && (BuyDiff or (RSIrawEMA >= 0))
+  #&& RSIfastEMA > 0
 );
-plot BuyTrigger = (
+def BuyTrigger = (
     Speed <= tooFastBuy
     && (
-      Speed < Speed[1] or Speed[1] < Speed[2]
+      Speed < Speed[1]
+      #&& (Speed[4] > 0 or Speed[3] > 0 or Speed[2] > 0)
     )
 );
-plot SellZone = (
+def SellZone = (
  sellBasket != Double.NEGATIVE_INFINITY
   && sellAvgs
   && (SellDiff or (RSIrawEMA <= 0))
+  #&& RSIfastEMA < 0
 );
-plot SellTrigger = (
+
+def SellTrigger = (
     Speed >= tooFastSell
     && (
-      Speed > Speed[1] or Speed[1] > Speed[2]
+      Speed > Speed[1]
+      #&& (Speed[4] < 0 or Speed[3] < 0 or Speed[2] < 0)
     )
 );
 
-plot StrongBUY = BuyZone && BuyTrigger;
-plot StrongSELL = SellZone && SellTrigger;
 
-StrongBUY.SetDefaultColor(color.GREEN);
-StrongSELL.SetDefaultColor(Color.RED);
+
+#--------------------
+#----Scanner
+#--------------------
+
+def StrongBUY = BuyZone && BuyTrigger;
+def StrongSELL = SellZone && SellTrigger;
+
+plot Scan = StrongBUY or StrongSELL;

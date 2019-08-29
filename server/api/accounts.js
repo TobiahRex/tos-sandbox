@@ -4,7 +4,7 @@ import TosAccounts from '../db/models/accounts';
 const router = new express.Router();
 
 router.get('/code', (req, res) => {
-  TosAccounts.getToken(req.query.code)
+  TosAccounts.getCode(req.query.code)
     .then((response) => {
       res.handle(null, { request: 'GET CODE', response });
     })
