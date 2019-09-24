@@ -9,7 +9,7 @@ def Med_TF_NetChangeAvg = MovingAverage(AverageType.Exponential, TF_med - TF_med
 def Med_TF_TotChangeAvg = MovingAverage(AverageType.Exponential, AbsValue(TF_med - TF_med[1]), TF_med_length);
 def Med_TF_ChgRatio = if Med_TF_TotChangeAvg != 0 then (Med_TF_NetChangeAvg / Med_TF_TotChangeAvg) else 0;
 plot RSI = 50 * (1 + Med_TF_ChgRatio) - 50;
-def RSI_Avg = SimpleMovingAvg(RSI, 8);
+plot RSI_Avg = ExpAverage(RSI, 8);
 
 
 #---Local Inputs for MED TF MOMENTUM "MOMO" V2

@@ -21,21 +21,9 @@ def sellAvgs = emaFast < smaFast;
 #===================== Direction Calc =============================
 #==================================================================
 input timeFrame = 10;
-#========================= Custom RSI & Avgs ======================
-def timeAgg = timeFrame * 13;
-def priceAvg = (close[1] + close[timeFrame]) / 2;
-def NetChangeAvg = MovingAverage(AverageType.Exponential, priceAvg - priceAvg[1], timeAgg);
-def TotChangeAvg = MovingAverage(AverageType.Exponential, AbsValue(priceAvg - priceAvg[1]), timeAgg);
-def ChgRatio = if TotChangeAvg != 0 then (NetChangeAvg / TotChangeAvg) else 0;
-def RSI = 50 * (1 + ChgRatio) - 50;
-def RSIBaseline = ExpAverage(RSI, 13);
 
-def rsiFast = ExpAverage(RSI(), timeFrame * 8) - 50;
-def rsiSlow = ExpAverage(RSI, timeFrame * 5);
-#===================================================================
-
-def zoneRsiYellow = rsiFast;
-def zoneRsiYellow2 = rsiSlow;
+def zoneRsiYellow = ExpAverage(RSI(), timeFrame * 8) - 50;
+def zoneRsiYellow2 = (ExpAverage(RSI(), (TimeFrame * .5) * 8) - 50);
 def zoneRSIDiff = (zoneRsiYellow - zoneRsiYellow[1]);
 def zoneSpeed = ExpAverage(zoneRSIDiff, 8) * 25;
 def zoneSpeed2 = ExpAverage(zoneRSIDiff, 21) * 25;
@@ -73,8 +61,8 @@ def trig_medOB = trig_BuyLine;
 def trig_strongOB = trig_OB;
 def trig_medOS = trig_SellLine;
 
-def BuyZone = RSI > RSIBaseline;
-def SellZone = RSI < RSIBaseline;
+def BuyZone = zoneRsiYellow2 > zoneRsiYellow;
+def SellZone = zoneRsiYellow2 < zoneRsiYellow;
 
 def buyTrig1 = trig_Speed crosses below trig_BuyLine;
 def buyTrig2 = trig_Speed < trig_BuyLine and (trig_Speed > trig_Speed[1] or trig_Speed crosses above trig_BuyLine);

@@ -52,16 +52,6 @@ const devConfig = {
   },
   plugins: [
     new ProgressBarPlugin(),
-    // new CommonsChunkPlugin({
-    //   name: 'vendor',
-    //   filename: 'bundle.[name].js',
-    //   minChunks: module =>
-    //     module.context && module.context.indexOf('node_modules') !== -1
-    // }),
-    // new CommonsChunkPlugin({
-    //   name: 'common',
-    //   filename: 'bundle.[name].js'
-    // }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),

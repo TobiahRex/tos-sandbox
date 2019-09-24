@@ -101,6 +101,8 @@
     "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "bootstrap": "3.3.7",
+    "chalk": "^2.4.2",
+    "ib": "^0.2.7",
     "localforage": "^1.7.2",
     "prop-types": "^15.6.2",
     "react": "^16.8.4",
@@ -115,6 +117,8 @@
     "redux-persist": "^5.10.0",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.1.0",
-    "reduxsauce": "^1.0.0"
+    "reduxsauce": "^1.0.0",
+    "technicalindicators": "^2.0.9",
+    "util": "^0.12.1"
   }
 }

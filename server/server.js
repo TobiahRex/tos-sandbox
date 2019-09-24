@@ -11,15 +11,23 @@ import webpack from 'webpack';
 import dotenv from 'dotenv';
 import hotMiddleware from 'webpack-hot-middleware';
 import devMiddleware from 'webpack-dev-middleware';
+import ib from 'ib';
+
 import webpackConfig from '../webpack.config';
 import api from './api';
 
+// ---------------------------- IB CONFIG --------------------------------------
+const IB = new ib({
+  clientId: 777,
+  host: '127.0.0.1',
+  port: 4001
+});
+IB.on('all', console.log);
 // ---------------------------- CONFIG -----------------------------------------
 mongoose.Promise = Promise;
 dotenv.config({ silent: true });
 const PORT = process.env.PORT || 3000;
-const MONGO =
-  process.env.MONGODB_URI || 'mongodb://localhost/tos-sandbox';
+const MONGO = process.env.MONGODB_URI || 'mongodb://localhost/market-catch';
 const BUILD = process.env.NODE_ENV || 'development';
 const app = express();
 const server = new http.Server(app);
@@ -37,9 +45,9 @@ app.use((req, res, next) => {
 ${JSON.stringify(err)}
 `);
     } else {
-      process.stdout.write(`Response Data: 😎
-${data}
-`);
+      //       process.stdout.write(`Response Data: 😎
+      // ${JSON.stringify(data)}
+      // `);
     }
     res.status(err ? 400 : 200).send(err || data);
   };
@@ -71,13 +79,11 @@ server.listen(PORT, err =>
   )
 );
 
-mongoose.connect(
-  MONGO,
-  err =>
-    process.stdout.write(
-      err ||
-        `
+mongoose.connect(MONGO, err =>
+  process.stdout.write(
+    err ||
+      `
     ==> 📜  MONGO @ ${MONGO}
     `
-    )
+  )
 );

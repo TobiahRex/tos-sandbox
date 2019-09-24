@@ -1,12 +1,17 @@
 import express from 'express';
 import TosAccounts from '../db/models/accounts';
+import TosApi from '../db/models/tos';
 
 const router = new express.Router();
 
 router.get('/code', (req, res) => {
-  TosAccounts.getCode(req.query.code)
+  TosApi.getCode(req.query.code)
     .then((response) => {
-      res.handle(null, { request: 'GET CODE', response });
+      console.log('response: ', response.data);
+      res.handle(null, {
+        request: 'GET CODE',
+        response: response.data,
+      });
     })
     .catch(res.handle);
 });
@@ -17,11 +22,11 @@ router.route('/hook')
     res.handle(null, req.body);
   })
   .get((req, res) => {
-    console.log('@/hook | req.query: ', req.query);
+    console.log('@/hook | req.query.code: ', req.query.code);
     console.log('@/hook', req.body);
 
     if (req.query.accountName) {
-      TosAccounts.getRefreshToken(req.query)
+      TosAccounts.getRefreshToken(req.query.code)
         .then((response) => {
           res.handle(null, {
             code: req.query.code,
@@ -32,6 +37,7 @@ router.route('/hook')
     } else if (req.query.code) {
       TosAccounts.getToken(req.query.code)
         .then((response) => {
+          console.log('\n\nresponse for GET token\n\n', response, '\n\n');
           res.handle(null, {
             code: req.query.code,
             token: response.data,
