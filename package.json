@@ -98,7 +98,7 @@
     "webpack-md5-hash": "^0.0.6"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "bootstrap": "3.3.7",
     "chalk": "^2.4.2",
