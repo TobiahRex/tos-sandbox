@@ -100,7 +100,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bluebird": "^3.5.3",
-    "bootstrap": "3.3.7",
+    "bootstrap": "3.4.1",
     "chalk": "^2.4.2",
     "ib": "^0.2.7",
     "localforage": "^1.7.2",
